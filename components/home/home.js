@@ -36,6 +36,8 @@ import { Block } from './block'
 import { Category } from './Category'
 import moreInfo from '../moreInfo/moreInfo'
 import MyWeb from '../moreInfo/webView'
+import Reload from '../reload/reload'
+import Purchase from '../executePurchase/purchase'
 Amplify.configure({ Auth: awsConfig });
 
 const { height, width } = Dimensions.get('window')
@@ -47,6 +49,7 @@ const DELAY = 80;
 class Home extends Component {
   //_isMounted = false;
   state = {
+    userToken:'',
     isLoading: true,
     error: null,
     refreshing: false,
@@ -59,6 +62,7 @@ class Home extends Component {
     selectedIndex: 0,
     mockPortfolio: [20, 10, 30, 95, -4, -24, 85, -30, 23, 45, 88, 32, 120, 91, 35, 53, -53, 24, 50, -20, 150],
     notificationText:'Loading',
+    accountBalance: 'Loading',
     portfolioValue:'10,240',
     portfolioChange:'101',
     percentageChange:'0.68',
@@ -216,13 +220,6 @@ class Home extends Component {
                 <Text style={{ fontSize: 12, fontWeight: '300', color: 'white' }}>{item.description}</Text>
                 <Text style={{ paddingRight: 20, fontSize: 16, fontWeight: 'bold', color: 'white', alignSelf: 'flex-end' }}>USD {item.latestPrice} ({item.change}%)</Text>
               </View>
-              {/* <TouchableOpacity style={{ borderRadius: 12, bottom: -100, backgroundColor: 'white', width: 320, height: 50 }}>
-                </TouchableOpacity> */}
-              {/* <TouchableOpacity onPress={() => { this.props.navigation.navigate('detailsETF') }} style={[styles.home_shadow, { right: 30, left: 30, bottom: -80, overflow: 'visible', width: '80%', height: 100, borderRadius: 6, backgroundColor: 'white', alignItems: 'flex-start', justifyContent: 'flex-start' }]}>
-                <Text style={{ color: 'black', paddingTop: 10, paddingBottom: 2, paddingLeft: 10, fontWeight: 'bold', fontSize: 14 }}>{item.title}</Text>
-                <Text style={[{ height: 40, color: 'gray', paddingTop: 5, paddingLeft: 10, paddingRight: 8, fontWeight: '200', fontSize: 10 }]}>{item.description}</Text>
-                <Text style={{ paddingBottom: 20, paddingTop: 10, marginRight: 5, color: 'black', fontWeight: '600', fontSize: 14, alignSelf: 'flex-end' }}>USD {item.latestPrice} <FontAwesome containerStyle={{ alignSelf: 'right' }} name="chevron-right" size={16 * 0.75} color='black' /></Text>
-              </TouchableOpacity> */}
             </View>
           </ImageBackground>
         </View>
@@ -258,6 +255,7 @@ class Home extends Component {
     await this.loadApp()
     //this._isMounted = true;
     this.generateData()
+    
     this.getETFs()
     this.getCompany
     //this.generateNotifications()
@@ -270,6 +268,7 @@ class Home extends Component {
     const attributes = info.attributes
     this.setState({ attributes })
     this.setState({ info })
+    this.getDatabaseUser()
   }
   componentWillUnmount() {
     //this._isMounted = false;
@@ -282,12 +281,34 @@ class Home extends Component {
         this.setState({ userToken: user.signInUserSession.accessToken.jwtToken })
       })
       .catch(err => console.log(err))
+    this.postUser()
     this.props.navigation.navigate(this.state.userToken ? 'App' : 'Auth')
   }
   handlerButtonOnClick = () => {
     this.setState({
       pressStatus: true
     });
+  }
+  postUser = () => {
+    var { userToken } = this.state
+    const url = 'https://api.thecashguard.com/account/'+userToken
+    fetch(url, {
+      method: "PUT",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    })
+      .then((response) => response.json())
+      .then((responseJSON) => {
+        responseJSON.map((item, index) => {
+          //console.log(responseJSON)
+        })
+      })
+      .catch((error) => {
+        console.log(error)
+
+      })
   }
   getCOMPANY = () => {
     const url = 'https://api.thecashguard.com/products/getCompany'
@@ -314,6 +335,30 @@ class Home extends Component {
         console.log(error)
 
       })
+  }
+  getDatabaseUser() {
+    const { info } = this.state
+    var {username} = info
+
+    const url = 'https://api.thecashguard.com/account/Details/'+username
+    fetch(url, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    })
+      .then((response) => response.json())
+      .then((responseJSON) => {
+        this.setState({ accountBalance: responseJSON['account_balance'] })
+      })
+      .catch((error) => {
+        console.log(error)
+
+      })
+  }
+  onReload = () => {
+    this.props.navigation.navigate('reloading',{callHome:this.getDatabaseUser.bind(this) }) 
   }
   render() {
     const { info } = this.state
@@ -413,34 +458,12 @@ class Home extends Component {
           </View>
           <Text style={{ color: 'black', marginTop: 5, marginLeft: 15, fontWeight: "300", fontSize: 13 }}>{this.state.notificationText}</Text>
           </View>
-          {/* <View style={{flexDirection:"row-reverse",justifyContent: 'center'}}>
-        <View style={{flexDirection:"row-reverse",justifyContent: 'center',justifyContent:'space-around',width:170,height:50}}>
-          {this.state.data.map((value, index) => <AnimatedBar value={value} delay={DELAY * index} key={index} />)}
-        </View> 
-      </View> */}
-          {/* <View style={{ margin: 10, color: 'white', borderRadius: 10, height: 100, borderColor: '#dddddd', borderWidth: 0.5 }}>
-            <BarChart
-            style={{ height: 150 }}
-            data={this.state.data}
-            animate={true}
-            animationDuration={500}
-            formatLabel={ (value, index) => index }
-            gridMin={0}
-            spacingInner={0.4}
-            contentInset={{ top: 20, bottom: 0 }}
-            svg={{
-              strokeWidth: 2,
-              fill: '#58D68D',
-            }}
-          >
-            <Labels />
-          </BarChart>
-          </View> */}
+          
           <View style={{ flexDirection: 'row', height: 200, marginTop: 0, paddingLeft: 10, paddingRight: 5 }}>
             <View style={{ flexDirection: 'column', height: '100%', width: '50%' }}>
               <View style={[{ elevation: 2, flex: 2, backgroundColor: 'white', overflow: 'visible', marginLeft: 10, marginTop: 10, borderRadius: 4, borderColor: '#dddddd', borderWidth: 0.5, height: '50%', width: '95%' }, styles.home_shadow]}>
                 <Text style={{ marginTop: 10, marginLeft: 10, fontWeight: "bold", fontSize: 14 }}>Balance</Text>
-                <Text style={{ color: 'black', marginTop: 5, marginLeft: 10, fontWeight: "500", fontSize: 22 }}>$ 1,234.55</Text>
+                <Text style={{ color: 'black', marginTop: 5, marginLeft: 10, fontWeight: "500", fontSize: 22 }}>$ {this.state.accountBalance}</Text>
                 <Text style={{ marginTop: 5, color: 'gray', marginLeft: 10, fontWeight: "400", fontSize: 14 }}>$ 10,992.45 invested</Text>
               </View>
               <View style={[{ elevation: 2, flex: 2, backgroundColor: 'white', overflow: 'visible', marginLeft: 10, marginTop: 5, borderRadius: 4, borderColor: '#dddddd', borderWidth: 0.5, height: '50%', width: '95%' }, styles.home_shadow]}>
@@ -488,7 +511,7 @@ class Home extends Component {
                     )
                   }</AnimatedCircularProgress>
                   <View style={{flexDirection:'row',padding:5}}>
-                    <TouchableOpacity style={[{ marginTop:10, width: '50%', height: 30, borderWidth: 1.0, borderColor: 'white', backgroundColor: 'black', borderRadius: 5 }]}>
+                    <TouchableOpacity onPress={this.onReload} style={[{ marginTop:10, width: '50%', height: 30, borderWidth: 1.0, borderColor: 'white', backgroundColor: 'black', borderRadius: 5 }]}>
             <Text style={{ fontWeight: '500', color: 'white', fontSize: 14, textAlign: 'center', padding: 5 }}>Reload </Text>
           </TouchableOpacity>
           <TouchableOpacity style={[{ marginTop:10, width: '50%', height: 30, borderWidth: 1.0, borderColor: 'white', backgroundColor: 'black', borderRadius: 5 }]}>
@@ -533,7 +556,10 @@ const DetailStack = createStackNavigator(
   {
       routeOne: Home,
       Detail: moreInfo,
-      toWeb:MyWeb 
+      toWeb:MyWeb,
+      reloading:Reload,
+      Order:Purchase
+
       
   }, {
       initialRouteName: 'routeOne',
@@ -542,3 +568,26 @@ const DetailStack = createStackNavigator(
 );
 const App = createAppContainer(DetailStack);
 export default createAppContainer(App);
+{/* <View style={{flexDirection:"row-reverse",justifyContent: 'center'}}>
+        <View style={{flexDirection:"row-reverse",justifyContent: 'center',justifyContent:'space-around',width:170,height:50}}>
+          {this.state.data.map((value, index) => <AnimatedBar value={value} delay={DELAY * index} key={index} />)}
+        </View> 
+      </View> */}
+          {/* <View style={{ margin: 10, color: 'white', borderRadius: 10, height: 100, borderColor: '#dddddd', borderWidth: 0.5 }}>
+            <BarChart
+            style={{ height: 150 }}
+            data={this.state.data}
+            animate={true}
+            animationDuration={500}
+            formatLabel={ (value, index) => index }
+            gridMin={0}
+            spacingInner={0.4}
+            contentInset={{ top: 20, bottom: 0 }}
+            svg={{
+              strokeWidth: 2,
+              fill: '#58D68D',
+            }}
+          >
+            <Labels />
+          </BarChart>
+          </View> */}

@@ -31,7 +31,6 @@ import { LinearGradient, Stop, Defs, Line } from 'react-native-svg'
 import { Text as SvgText, Rect, G, Circle, Svg } from 'react-native-svg'
 import { ScrollableTabView, DefaultTabBar, ScrollableTabBar } from '@valdio/react-native-scrollable-tabview';
 import moment from "moment";
-import { WebView } from 'react-native-webview';
 Amplify.configure({ Auth: awsConfig });
 
 const { height, width } = Dimensions.get('window')
@@ -207,7 +206,6 @@ export default class moreInfo extends Component {
           </View>
         </ContentLoader>
       )
-
     })
   }
   renderNews = ({ item }) => {
@@ -285,6 +283,9 @@ export default class moreInfo extends Component {
       </ContentLoader>
     )
   }
+  orderItem = () => {
+    this.props.navigation.navigate('Order',{purchaseOrder: this.props.navigation.state.params.theItem }) 
+  }
   render() {
     const component1 = () => <Text style={{ fontWeight: '500', color: 'black', fontSize: 14 }}>1W</Text>
     const component2 = () => <Text style={{ fontWeight: '500', color: 'black', fontSize: 14 }}>1M</Text>
@@ -301,7 +302,11 @@ export default class moreInfo extends Component {
     var { avgTotalVolume } = this.props.navigation.state.params.theItem
     var { description } = this.props.navigation.state.params.theItem
     var { companyName } = this.props.navigation.state.params.theItem
-    var { threey }        = this.props.navigation.state.params.theItem
+    var { oney }        = this.props.navigation.state.params.theItem
+    var { threey }      = this.props.navigation.state.params.theItem
+    var { fivey }       = this.props.navigation.state.params.theItem
+    var { teny }        = this.props.navigation.state.params.theItem
+    var { inception }   = this.props.navigation.state.params.theItem
     this.state.companyNames = this.props.navigation.state.params.theItem.holdings[0]
     this.state.itemSymbol = symbol
     //var { data } = this.props.navigation.state.params.etfHoldings 
@@ -311,18 +316,18 @@ export default class moreInfo extends Component {
         <StatusBar barStyle="light-content" />
         <ImageBackground source={{ uri: image }} imageStyle={{ borderRadius: 4 }} style={[{ width: '100%', height: 200, resizeMode: 'cover' }]}>
           <View style={{ height: 150, backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <TouchableOpacity style={{ top: +30, marginLeft: 10, alignSelf: 'flex-start', height: 60 }} onPress={() => { this.props.navigation.goBack(null) }}>
+            <TouchableOpacity style={{ top: (Platform.OS)==='ios' ? +30:0, marginLeft: 10, alignSelf: 'flex-start', height: 60 }} onPress={() => { this.props.navigation.goBack(null) }}>
               <Icon name="ios-arrow-round-back" size={50} color={'white'} />
             </TouchableOpacity>
-            <View style={{ alignContent: 'center' }}>
+            <View style={{ alignContent: 'center' ,marginTop: (Platform.OS) === 'ios' ? 0 : -30 }}>
               <Text style={{ textAlign: 'center', color: 'white', fontSize: 30, fontWeight: '500' }}>{title}</Text>
             </View>
           </View>
         </ImageBackground>
         <SafeAreaView style={{ position: 'absolute', top: 100 }}>
-          <ScrollableTabView tabBarActiveTextColor='#0EBE2C' tabBarUnderlineStyle={{ height: 1, backgroundColor: '#0EBE2C' }} style={{ borderWidth: 0, marginTop: 0, backgroundColor: 'rgba(0,0,0,0.01)', backgroundColor: '#fff' }}>
-            <ScrollView style={{ height: 600, shadowColor: '#ccc' }} tabLabel="Overview" scrollEventThrottle={16} >
-              <View style={[styles.home_shadow, { paddingLeft: 0, width: '100%', height: 1000, margin: 0, borderRadius: 6, borderWidth: 1.5, backgroundColor: 'white', overflow: 'visible', borderColor: '#dddddd' }]}>
+          <ScrollableTabView tabBarActiveTextColor='black' tabBarUnderlineStyle={{ height: 1, backgroundColor: '#0EBE2C' }} style={{ borderWidth: 0, marginTop: 0, backgroundColor: 'rgba(0,0,0,0.01)', backgroundColor: '#fff' }}>
+            <ScrollView style={{ height: 650, shadowColor: '#ccc'}} tabLabel="Overview" scrollEventThrottle={16} >
+              <View style={[styles.home_shadow, { paddingLeft: 0, width: '100%', height: 1200, margin: 0, borderRadius: 6, borderWidth: 1.5, backgroundColor: 'white', overflow: 'visible', borderColor: '#dddddd' }]}>
                 <Text style={{ textAlign: 'center', color: 'black', fontSize: 16, marginTop: 5, fontWeight: '500' }}>{companyName}</Text>
                 <Text style={{ textAlign: 'center', marginBottom: 5, paddingLeft: 20, marginTop: 5, paddingRight: 10, color: 'black', width: '100%', fontSize: 13, fontWeight: '500' }}>Ticker: {symbol}</Text>
                 <Text style={{ textAlign: 'center', marginBottom: 5, paddingLeft: 20, marginTop: 5, paddingRight: 10, color: 'black', width: '100%', fontSize: 13, fontWeight: '300' }}>{description}</Text>
@@ -359,27 +364,25 @@ export default class moreInfo extends Component {
                   />
                 </View>
                 <View>
-                <Text style={{fontSize:13, fontWeight:'600',paddingLeft:20,marginTop:10}}>Historical Performance</Text>
-                  <View style={{ borderRight:0.2,borderLeft:0.2,paddingLeft:20,paddingTop:10,paddingRight:10, flexDirection:'row'}}>
-                    <Text style={{width:'10%',textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}>1-y</Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}>3-y</Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}>5-y</Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}>10-y</Text>
-                    <Text style={{fontWeight: '500',width:'21%',padding:2,textAlign: 'center',borderBottomRightRadius:8,borderTopRightRadius:8}}>Inception</Text>
+                <Text style={{ color:'black',fontSize:13, fontWeight:'600',paddingLeft:20,marginTop:10}}>Historical Performance (Annual Return)</Text>
+                  <View style={{ borderRight:0.2,borderLeft:0.2,paddingLeft:10,paddingTop:10,paddingRight:20,flexDirection:'row'}}>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'darkgray',fontSize:12}}>1-y</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'darkgray',fontSize:12}}>3-y</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'darkgray',fontSize:12}}>5-y</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'darkgray',fontSize:12}}>10-y</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'darkgray',fontSize:12}}>Inception</Text>
                   </View>
-                  <View style={{ borderRight:1.2,borderLeft:1.2,paddingLeft:20,paddingTop:10,paddingRight:10, flexDirection:'row'}}>
-                    <Text style={{width:'10%',textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'16%',padding:2,textAlign: 'center'}}></Text>
-                    <Text style={{fontWeight: '500',width:'21%',padding:2,textAlign: 'center'}}></Text>
+                  <View style={{ borderRight:1.2,borderLeft:1.2,paddingLeft:10,paddingTop:10,paddingRight:20, flexDirection:'row'}}>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'black'}}>{oney}</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'black'}}>{threey}</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'black'}}>{fivey}</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'black'}}>{teny}</Text>
+                    <Text style={{fontWeight: '500',width:'20%',padding:2,textAlign: 'center', color:'black'}}>{inception}</Text>
                   </View>
                   </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={{ paddingLeft: 20, marginTop: 20, paddingRight: 10, color: 'black', width: '55%', fontSize: 13, fontWeight: 'bold' }}>Top 10 Holdings</Text>
-                  <Text style={{ marginTop: 20, paddingLeft: 80, color: 'black', width: '45%', fontSize: 13, fontWeight: 'bold' }}> of Total</Text>
+                  <Text style={{ paddingLeft: 20, marginTop: 20, paddingRight: 10, color: 'black', width: '60%', fontSize: 13, fontWeight: 'bold' }}>Top 10 Holdings</Text>
+                  <Text style={{ marginTop: 20, paddingLeft: 80, color: 'black', width: '40%', fontSize: 13, fontWeight: 'bold' }}> of Total</Text>
                 </View>
                 {this.renderHolding()}
               </View>
@@ -399,7 +402,7 @@ export default class moreInfo extends Component {
           </ScrollableTabView>
         </SafeAreaView>
         <View style={{ flex: 2, position: 'absolute', justifyContent: 'flex-end', bottom: -10, width: '100%', justifyContent: 'flex-end', padding: 20 }}>
-          <TouchableOpacity style={[styles.home_shadow, { alignSelf: 'flex-end', alignContent: 'center', width: '100%', height: 35, borderWidth: 1.0, borderColor: 'white', backgroundColor: '#0EBE2C', borderRadius: 10 }]}>
+          <TouchableOpacity onPress={this.orderItem} style={[styles.home_shadow, { alignSelf: 'flex-end', alignContent: 'center', width: '100%', height: 35, borderWidth: 1.0, borderColor: 'white', backgroundColor: '#0EBE2C', borderRadius: 10 }]}>
             <Text style={{ fontWeight: '500', color: 'white', fontSize: 20, textAlign: 'center', padding: 5 }}>BUY </Text>
           </TouchableOpacity>
         </View>

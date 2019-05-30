@@ -11,12 +11,12 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    SafeAreaView,
-    Alert,
     View } from 'react-native';
 import Profile from '../Profile/Profile'
 import Home from '../home/home'
 import Invest from '../invest/investScreen'
+import myPortfolio from '../Portfolio/portfolio'
+
 class HomeScreen extends React.Component {
     state = {
         userToken: null
@@ -89,6 +89,14 @@ const TabNavigator = createBottomTabNavigator({
       )
       }
     },
+    Portfolio: {
+      screen:myPortfolio,
+      navigationOptions:{
+        tabBarLabel:'Portfolio',
+        tabBarIcon: ({tintColor})=>(
+            <Icon name="ios-easel" size={24} color={tintColor} />
+        )
+      }},
   Account: {
     screen:Profile,
     navigationOptions:{

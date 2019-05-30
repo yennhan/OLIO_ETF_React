@@ -8,7 +8,7 @@ import {
   View } from 'react-native';
 import Amplify, { Auth } from 'aws-amplify';
 import awsConfig from '../../src/aws-exports'
-
+import LottieView from 'lottie-react-native';
 Amplify.configure({Auth: awsConfig});
 
 
@@ -59,7 +59,7 @@ export default class Signin extends Component {
         >
           <View style={styles.signin_form_container}>
           <Text style={styles.signin_banner_text}>
-              WASP
+              OLIO
             </Text>
             <Text>
               {this.state.errorMessage}

@@ -29,6 +29,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { TagSelect } from 'react-native-tag-select';
 import moreinfo from '../moreInfo/moreInfo';
 import MyWeb from '../moreInfo/webView'
+import Purchase from '../executePurchase/purchase'
 Amplify.configure({ Auth: awsConfig });
 
 const { height, width } = Dimensions.get('window')
@@ -218,7 +219,8 @@ const DetailStack = createStackNavigator(
     {
         routeOne: Invest,
         Detail: moreinfo,
-        toWeb:MyWeb
+        toWeb:MyWeb,
+        Order:Purchase
     }, {
         initialRouteName: 'routeOne',
         headerMode: 'none'
